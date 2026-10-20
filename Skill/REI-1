@@ -1,0 +1,82 @@
+---
+name: rei-1
+description: REI reasoning pipeline (message → analysis → architecture → critique → verification). Use for any task that needs structured, self-checked reasoning before the final answer. Loops back from verification when the result is not satisfactory.
+---
+
+# REI-1: Reasoning Pipeline
+
+REI is a five-stage reasoning loop. Each stage must complete before the next begins. The pipeline ends only when verification passes. If verification fails, return to the beginning and run the full pipeline again, using what verification revealed.
+
+Flow:
+
+message → analysis → architecture → critique → verification
+
+If verification fails → restart at message.
+
+## Stage 1: Message
+
+Read the request and restate it in one or two sentences. Identify:
+
+- The explicit goal (what the user asked for).
+- The implicit constraints (format, language, length, audience, scope).
+- Any ambiguity that changes the answer. Resolve it with a reasonable assumption and state that assumption.
+
+Output of this stage: a clear problem statement and a list of constraints.
+
+## Stage 2: Analysis
+
+Break the problem down. Do not propose a solution yet.
+
+- Decompose the problem into its core sub-questions or components.
+- Identify what is known, what is unknown, and what must be verified.
+- Note the relevant facts, definitions, and rules that apply.
+- Identify the failure modes: where a naive answer would go wrong.
+
+Output of this stage: a structured decomposition of the problem and a list of risks.
+
+## Stage 3: Architecture
+
+Design the answer or solution based on the analysis.
+
+- Choose an approach and briefly justify it against at least one alternative.
+- Define the structure of the final output (sections, steps, code modules, arguments, whatever fits the task).
+- Map each sub-question from the analysis to a part of the structure.
+
+Output of this stage: a concrete plan for the answer, specific enough that someone else could write it.
+
+## Stage 4: Critique
+
+Attack the architecture before building on it.
+
+- Look for logical gaps, unsupported claims, and missing cases.
+- Check the plan against the constraints from Stage 1.
+- Ask: what is the strongest objection to this approach? Does the plan survive it?
+- Revise the architecture to address every serious flaw. Record what changed and why.
+
+Output of this stage: a revised architecture and a short list of the flaws found and fixed.
+
+## Stage 5: Verification
+
+Produce the answer from the revised architecture, then check it against the original request.
+
+Verification must confirm all of the following:
+
+1. Completeness: every sub-question from Stage 2 is answered.
+2. Constraint compliance: format, language, length, and scope match Stage 1.
+3. Correctness: facts, calculations, and code are checked, not assumed.
+4. Consistency: no part of the answer contradicts another part.
+5. Usefulness: the answer solves the user's actual problem, not only the literal wording.
+
+Verification result:
+
+- PASS: all five checks are satisfied. Deliver the answer.
+- FAIL: at least one check is not satisfied. Do not deliver the answer. Record which check failed and why, then return to Stage 1 and run the pipeline again. Carry the failure notes forward so the next pass corrects the specific defect.
+
+There is no limit on the number of loops in principle. Stop and tell the user if the same check fails on two consecutive passes, and explain what is blocking the result.
+
+## Rules
+
+- Stages run in order. Do not skip a stage, and do not merge stages silently.
+- Keep each stage's output brief and structured. The reasoning is the work, not the prose.
+- Only the final answer that passes verification is shown to the user, unless the user asks to see the process.
+- Never mark verification as PASS without performing the checks.
